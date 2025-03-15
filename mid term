@@ -1,0 +1,86 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+
+struct Interval{
+    int start;
+    int end;
+};
+using namespace std; 
+void readData(string fileIn, int& n, vector<Interval>& khoang) {
+    ifstream fin(fileIn);
+    if(!fin.is_open()) {
+        cout << "can't open";
+        return;
+    }
+    string line = "";
+    getline(fin, line);
+    n = stoi(line);
+
+    string s = "";
+    string e = "";
+
+    while(getline(fin, s, ' ')) {
+        if(s == "") break;
+        getline(fin, e, '\n');
+
+        Interval tmp;
+        tmp.start = stoi(s);
+        tmp.end = stoi(e);
+
+        khoang.push_back(tmp);
+    }
+    fin.close();
+}
+
+void sort(vector<Interval>& khoang) {
+    int n = khoang.size();
+    for(int i = 1; i < n; i++) {
+        int key = khoang[i].start;
+        int end = khoang[i].end;
+        int j = i - 1;
+
+        while(j >= 0 && khoang[j].start > key) {
+            khoang[j + 1] = khoang[j];
+            j--;
+        }
+
+        khoang[j + 1].start = key;
+        khoang[j + 1].end = end;
+    }
+}
+vector<Interval> mergeIntervals(vector<Interval> khoang) {
+    int n = khoang.size();
+    int i = 0;
+    vector<Interval> res;
+    while (i < n)
+    {
+        int start = i;
+        int end = i;
+        while(i < n - 1 && khoang[i].end == khoang[i + 1].start) {
+            i++;
+            end = i;
+        }
+        Interval tmp;
+        tmp.start = khoang[start].start;
+        tmp.end = khoang[end].end;
+        res.push_back(tmp);
+        i++;
+    }
+    return res;
+}
+
+int main() {
+    string fileIn = "data.txt";
+    int n;
+    vector<Interval> khoang;
+    readData(fileIn, n, khoang);
+    sort(khoang);
+    vector<Interval> res = mergeIntervals(khoang);
+    int sizeRes = res.size();
+    for(int i = 0; i < sizeRes; i++) {
+        cout << res[i].start << " " << res[i].end << endl;
+    }
+    return 0;
+}
